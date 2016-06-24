@@ -17,12 +17,13 @@ object Mondrian {
   }
 
   /** @constructor Node */
-  class Node[T](val parent: Node[T] = null, val x: T, val l: Node[T] = null, val r: Node[T] = null) {
-    override def toString(): String = "(" + "Parent: " + parent + ", " + 
-                                            Console.GREEN + "Value: " + x + ", " + Console.RESET +
-                                            "Left: " + l + ", " + 
-                                            "Right: " + r + ")"
+  class Node[T](val x: T, val l: Node[T] = null, val r: Node[T] = null) {
+    override def toString(): String = "(" + Console.GREEN + x + ", " + Console.RESET +
+                                            l + ", " + r + ")"
   }
+
+  class Tree[T](val dat: T, val l: Tree[T], val r: Tree[T]) 
+
 }
 
 /* Quick Tests:
