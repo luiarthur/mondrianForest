@@ -22,7 +22,7 @@ object Mondrian {
                                             l + ", " + r + ")"
   }
 
-  class Tree[T](val dat: T, val l: Tree[T], val r: Tree[T]) 
+  class Tree[T](val root: Node[T], val l: Node[T], val r: Node[T]) 
 
 }
 
