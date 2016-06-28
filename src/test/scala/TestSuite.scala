@@ -1,12 +1,12 @@
 package mondrian
 import org.scalatest.FunSuite
 
-class FunTicTacSuite extends FunSuite  {
+class FunMondrianSuite extends FunSuite  {
 
   import mondrian.Mondrian._
   import mondrian.Timer.time
 
-  val root = new Tree
+  val root = new Tree(Set(0))
   val t1 = root.update(l=Map(0->1), r=Map(0->2))
   println(t1)
 
@@ -23,8 +23,9 @@ class FunTicTacSuite extends FunSuite  {
   }
 
   test("Test update with Tree") {
-    // root.update(t1,t1)
     // Must prevent adding existing nodes!
+    //val t2 = root.update(t1)
+    //println(t2)
     assert(false)
   }
 }

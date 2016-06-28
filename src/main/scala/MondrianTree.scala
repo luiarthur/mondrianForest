@@ -3,8 +3,10 @@ package mondrian
 object Mondrian {
   import scala.util.Random
   import Timer.time
+  import breeze.linalg._
   private val rand = new Random(System.currentTimeMillis());
   
+
   /** @constructor Tree */
   class Tree(val n: Set[Int], val p: Map[Int,Int], val l: Map[Int,Int], val r: Map[Int,Int]) {
 
@@ -15,10 +17,23 @@ object Mondrian {
     }
 
     override def toString(): String = "(" + Console.GREEN + n + ", " + Console.RESET + p + ", " + l + ", " + r + ")"
-    def this(n: Set[Int] = Set(0)) = this(n, Map(), Map(), Map())
+    def this(n: Set[Int] = Set()) = this(n, Map(), Map(), Map())
     def leaves(): Set[Int] = (n.toSet diff (l ++ r).keys.toSet)
     def isLeaf(i: Int): Boolean = leaves() contains i
+  }
 
+  /** @constructor MT (Mondrian Tree Tuple)*/
+  class MT(val T: Tree, val d: Map[Int,Int], val x: Map[Int,Double], val tau: Map[Int, Double]) {
+    def this() = this(new Tree, Map(), Map(), Map()) // T: Tree, d: split dim, x: split loc, tau: split time
+    def sampleMT(lam: Double, D: DenseMatrix[Double]): MT = { // D is a matrix, first col is y, the rest are X
+      def sampleMB(j: Int, dj: DenseVector[Double], lam: Double): MT = {
+        ???//val newT = T.update()
+      }
+
+      val mt = new MT
+      //mt.sampleMB(0,D(0,::),lam)
+      ???
+    }
   }
 
   /*
