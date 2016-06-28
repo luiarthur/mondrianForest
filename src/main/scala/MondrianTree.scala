@@ -5,36 +5,25 @@ object Mondrian {
   import Timer.time
   private val rand = new Random(System.currentTimeMillis());
   
-  /** @constructor Mondrian Tree */
-  class MT(val T: List[Int], val delta: List[Double], val xi: List[Double]) {
-    override def toString(): String = ???
-    /**
-     * addLeft
-     * addRight
-     * getLeft
-     * getRight
-     */
+  /** @constructor Tree */
+  class Tree(val n: Set[Int], val p: Map[Int,Int], val l: Map[Int,Int], val r: Map[Int,Int]) {
+
+    def update(l: Map[Int,Int] = Map(), r: Map[Int,Int] = Map()): Tree = {
+      val pOut = r.map(_.swap) ++ l.map(_.swap)
+      val nOut = ( l.values ++ r.values ).toSet
+      new Tree(nOut ++ this.n, pOut ++ this.p, l ++ this.l, r ++ this.r)
+    }
+
+    override def toString(): String = "(" + Console.GREEN + n + ", " + Console.RESET + p + ", " + l + ", " + r + ")"
+    def this(n: Set[Int] = Set(0)) = this(n, Map(), Map(), Map())
+    def leaves(): Set[Int] = (n.toSet diff (l ++ r).keys.toSet)
+    def isLeaf(i: Int): Boolean = leaves() contains i
+
   }
 
-  /** @constructor Node */
-  class Node[T](val x: T, val l: Node[T] = null, val r: Node[T] = null, val p: Node[T] = null) {
-    override def toString(): String = "(" + Console.GREEN + x + ", " + Console.RESET +
-                                            l + ", " + r + ", " + p + ")"
-  }
-
-  class Tree(val T: List[Int], val p: Map[Int,Int], val l: Map[Int,Int], val r: Map[Int,Int]) {
-    def addLeft(m: Map[Int,Int]): Tree = new Tree(T,p,l ++ m,r)
-    def addRight(m: Map[Int,Int]): Tree = new Tree(T,p,l,r ++ m)
-    def addParent(m: Map[Int,Int]): Tree = new Tree(T,p ++ m,l,r)
-    def this(T: List[Int]) = this(T,Map[Int,Int](),Map[Int,Int](),Map[Int,Int]())
-  }
-
+  /*
+   val t1 = new Tree
+   val tLeft = t1.update(n=Vector(1,2),l=Map(0->1),r=Map(0->2))
+   t1.leaves
+   */
 }
-
-/* Quick Tests:
-  val node = new Node[Double](x=1, l=new Node(x=1), r=new Node(x=2), p=new Node(x=0))
-  val node2 = new Node[Double](x=2, l=node, r=node)
-
-  val mt = new MT(List(1,2,3), List(2,3,4), List(3,4,5))
-  val mnode = new Node[MT](x=mt, l=new Node[MT](x=mt), r=new Node[MT](x=mt))
-*/
