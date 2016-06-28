@@ -19,7 +19,7 @@ object Mondrian {
   /** @constructor Node */
   class Node[T](val x: T, val l: Node[T] = null, val r: Node[T] = null, val p: Node[T] = null) {
     override def toString(): String = "(" + Console.GREEN + x + ", " + Console.RESET +
-                                            l + ", " + r + "," + p + ")"
+                                            l + ", " + r + ", " + p + ")"
   }
 
   class Tree(val T: List[Int], val p: Map[Int,Int], val l: Map[Int,Int], val r: Map[Int,Int]) {
