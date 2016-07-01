@@ -6,26 +6,24 @@ class FunMondrianSuite extends FunSuite  {
   import mondrian.Mondrian._
   import mondrian.Timer.time
 
-  val root = new Tree(Set(0))
-  val t1 = root.update(l=Map(0->1), r=Map(0->2))
-  println(t1)
+  val bLeft = new Tree(1)
+  val bRight = new Tree(2)
+  val bRoot = new Tree(0,bLeft.copy(),bRight)
 
-  test("Test") {
-    assert(true)
+  test("Test parent of children is self") {
+    assert(bRoot.left.parent == bRoot && bRoot.right.parent == bRoot)
   }
 
-  test("Test isLeaf()") {
-    assert(!t1.isLeaf(0) && t1.isLeaf(1) && t1.isLeaf(2) && !t1.isLeaf(3))
+  test("Test bRoot is Root") {
+    assert(bRoot.isRoot && !bRoot.right.isRoot && !bRoot.left.isRoot)
   }
 
-  test("Test leaves()") {
-    assert(t1.leaves.size==2 && root.leaves.size==1)
+  test("Test bRoot.left and .right are Leafs") {
+    assert(!bRoot.isLeaf && bRoot.left.isLeaf && bRoot.right.isLeaf)
   }
 
-  test("Test update with Tree") {
-    // Must prevent adding existing nodes!
-    //val t2 = root.update(t1)
-    //println(t2)
-    assert(false)
+  test(Console.BOLD + "Copy Logic!!! THIS IS IMPORTANT TO UNDERSTAND!!!") {
+    assert(bRight == bRoot.right && bLeft != bRoot.left)
   }
+
 }
