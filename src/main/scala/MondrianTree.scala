@@ -15,5 +15,4 @@ object Mondrian {
     def isLeaf(): Boolean = (left,right) match {case (null,null) => true; case _ => false}
     def isRoot(): Boolean = parent match {case null => true; case _ => false}
   }
-
 }
