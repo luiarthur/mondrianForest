@@ -1,4 +1,4 @@
-package mondrian
+package mondrianForest
 
 object Timer{
   def time[R](block: => R): R = {  
