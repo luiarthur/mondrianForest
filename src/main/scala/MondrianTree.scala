@@ -33,7 +33,7 @@ object Mondrian {
   }
 
   class MT[T] (val dat: T, val left: MT[T], val right: MT[T]) extends Node[T] {
-    val parent = p
+    lazy val parent = p // don't call parent before the tree has been extended!!! 
     def this(data: T) = this(data, null, null)
     override def toString(): String = "(" + dat + ", " + left + ", " + right + ")"
     def isLeaf(): Boolean = (left,right) match {case (null,null) => true; case _ => false}
@@ -41,7 +41,11 @@ object Mondrian {
   }
      val x = new MT(1)
      val y = new MT(2)
+     x.parent // This calls lazy val initialization
      val z = new MT(3,x,y)
-     z.left.right
+     // Interesting?
+     z.left.parent
+     z.right.parent
+     val z = new MT(3,new MT(1),new MT(2))
    */
 }
