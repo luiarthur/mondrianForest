@@ -3,12 +3,12 @@ import org.scalatest.FunSuite
 
 class FunMondrianSuite extends FunSuite  {
 
-  import mondrian.Mondrian.MT
+  import mondrian.Mondrian.Tree
   import mondrian.Timer.time
 
-  val bLeft = MT(1)
-  val bRight = MT(2)
-  val bRoot = MT(0,bLeft,bRight)
+  val bLeft = Tree(1)
+  val bRight = Tree(2)
+  val bRoot = Tree(0,bLeft.copy(),bRight)
 
   test("Test parent of children is self") {
     assert(bRoot.left.parent == bRoot && bRoot.right.parent == bRoot)
