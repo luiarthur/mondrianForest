@@ -1,10 +1,8 @@
-package mondrianForest
 import org.scalatest.FunSuite
 
-class FunMondrianSuite extends FunSuite  {
+class TestSuite extends FunSuite  {
 
-  import mondrianForest.Mondrian.Tree
-  import mondrianForest.Timer.time
+  import Mondrian.Tree
 
   val bLeft = Tree(1)
   val bRight = Tree(2)
