@@ -18,4 +18,30 @@ object Mondrian {
     def isRoot(): Boolean = parent match {case null => true; case _ => false}
   }
 
+  /* Ideas: 
+   *        Try writing a Tree Trait with dat, left, right, parent. (http://docs.scala-lang.org/tutorials/tour/traits.html)
+   *        Then write a class that extends the trait to wrap called MT.
+   */
+
+  /*
+  trait Node[T] {
+    val dat: T
+    val left: Node[T]
+    val right: Node[T]
+    var p: Node[T] = null
+    Seq(right,left).foreach(x => if (x match {case null => false; case _ => true}) x.p= this)
+  }
+
+  class MT[T] (val dat: T, val left: MT[T], val right: MT[T]) extends Node[T] {
+    val parent = p
+    def this(data: T) = this(data, null, null)
+    override def toString(): String = "(" + dat + ", " + left + ", " + right + ")"
+    def isLeaf(): Boolean = (left,right) match {case (null,null) => true; case _ => false}
+    def isRoot(): Boolean = parent match {case null => true; case _ => false}
+  }
+     val x = new MT(1)
+     val y = new MT(2)
+     val z = new MT(3,x,y)
+     z.left.right
+   */
 }
