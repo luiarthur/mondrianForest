@@ -2,7 +2,7 @@ import org.scalatest.FunSuite
 
 class TestSuite extends FunSuite  {
 
-  import Mondrian.MT
+  import Mondrian._
 
   val bLeft = MT(1)
   val bRight = MT(2)
@@ -24,4 +24,14 @@ class TestSuite extends FunSuite  {
     assert(bRight == bRoot.right && bLeft == bRoot.left)
   }
 
+  //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
+  //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
+  val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
+  val n = iris.size
+  val k = iris(0).size - 1
+  val y = iris.map(_(k))
+  val X = iris.map(x => x.take(k))
+  val D = Data(y,X)
+
+  bRight.sampleMT(1,X)
 }
