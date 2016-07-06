@@ -25,17 +25,17 @@ object Mondrian {
   }
   
   class MT(val dat: Data, val lam: Double) {
-    def sampleMT(): Tree[Tup] = {
+    def sampleMT(): Tree[Tup] = { // Algorithm 1
       val k = dat.X(0).size
       val n = dat.y.size
 
-      def sampleMB(subX: Vector[Vector[Double]], tup: Tup): Tree[Tup] = {
+      def sampleMB(subX: Vector[Vector[Double]], tup: Tup): Tree[Tup] = { // Algorithm 2
         val l = (0 until k).map(i => subX.map(x => x(i)).min)
         val u = (0 until k).map(i => subX.map(x => x(i)).max)
         val diffs = (u,l).zipped.map(_-_)
         val diffSum = diffs.sum
         val e = Exponential( diffSum + .00000001).draw
-        if (diffSum != 0 && tup.splitTime + e < lam ) { // why do I need to check if diffs.sum is 0?
+        if (diffSum != 0 && tup.splitTime + e < lam ) { // diffSum == 0 => split time -> infinity
           val tau = tup.splitTime + e
           val Multinom = new Multinomial(new DenseVector(diffs.toArray))
           val delta = Multinom.sample// sample split dim
