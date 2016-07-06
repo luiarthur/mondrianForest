@@ -37,14 +37,17 @@ class TestSuite extends FunSuite  {
       && !mti1.isRoot && !mti3.left.isRoot)
   }
 
-  //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
-  //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
-  val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
-  val n = iris.size
-  val k = iris(0).size - 1
-  val y = iris.map(_(k))
-  val X = iris.map(x => x.take(k))
-  val D = Data(y,X)
-
-  //bRight.sampleMT(1,X)
+  test("Mondrian Tree Sample") {
+    //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
+    //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
+    val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
+    val n = iris.size
+    val k = iris(0).size - 1
+    val y = iris.map(_(k))
+    val X = iris.map(x => x.take(k))
+    val D = Data(y,X)
+    val mt = new MT(D,.2)
+    val m = mt.sampleMT
+    print(Console.BLUE+m.treeString+Console.RESET)
+  }
 }
