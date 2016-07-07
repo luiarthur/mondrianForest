@@ -1,31 +1,30 @@
 object Mondrian2 {
 
-  case class Tree[T](elem: T, private var left: Tree[T] = null, private var right: Tree[T] = null) {
-    def setParent(that: Tree[T]): Tree[T] = {
-      this.parent = that
-      that.setLeft(this)
-      that.setRight(this)
-      this
+  case class Tree[T](private var _elem: T, private var _left: Tree[T] = null, private var _right: Tree[T] = null) {
+    def elem_=(that: T): Unit = _elem = that
+    def parent_=(that: Tree[T]): Unit = {
+      this._parent = that
+      that._left = this
+      that._right = this
     }
-    def setLeft(that: Tree[T]): Tree[T] = {
-      this.left = that
-      that.parent = this
-      this
+    def left_=(that: Tree[T]): Unit = {
+      this._left = that
+      that._parent = this
     }
-    def setRight(that: Tree[T]): Tree[T] = {
-      this.right = that
-      that.parent = this
-      this
+    def right_=(that: Tree[T]): Unit = {
+      this._right = that
+      that._parent = this
     }
-    def getLeft(): Tree[T] = left
-    def getRight(): Tree[T] = right
-    def getParent(): Tree[T] = parent
+    def elem = _elem
+    def parent = _parent
+    def left = _left
+    def right = _right
 
-    private var parent: Tree[T] = null
-    Seq(right,left).foreach(child => if (child match {case null => false; case _ => true}) child.parent = this)
+    private var _parent: Tree[T] = null
+    Seq(_right,_left).foreach(child => if (child match {case null => false; case _ => true}) child._parent = this)
 
-    def isLeaf: Boolean = (left,right) match {case (null,null) => true; case _ => false}
-    def isRoot: Boolean = parent match {case null => true; case _ => false}
+    def isLeaf: Boolean = (_left,_right) match {case (null,null) => true; case _ => false}
+    def isRoot: Boolean = _parent match {case null => true; case _ => false}
 
     private def pretty(spacing: Int = 3): Vector[String] = {
       def rep(n: Int, s: String=" "): String = List.fill(n)(s).mkString
@@ -42,10 +41,10 @@ object Mondrian2 {
       }
 
       val ps = elem.toString
-      val ls = if (left.isLeaf) Vector(left.elem.toString) else left.pretty(spacing)
-      val rs = if (right.isLeaf) Vector(right.elem.toString) else right.pretty(spacing)
-      val posL = ls(0).indexOf(left.elem.toString)
-      val posR = rs(0).indexOf(right.elem.toString)
+      val ls = if (_left.isLeaf) Vector(_left.elem.toString) else _left.pretty(spacing)
+      val rs = if (_right.isLeaf) Vector(_right.elem.toString) else _right.pretty(spacing)
+      val posL = ls(0).indexOf(_left.elem.toString)
+      val posR = rs(0).indexOf(_right.elem.toString)
       val top = rep(posL) + rep(spacing+ls(0).size-posL,"_") + ps + rep(spacing+posR,"_") + rep(rs(0).size-posR)
       val bottom = List(ls, Vector(rep(spacing*2 + ps.size)), rs).reduce(paste)
       Vector(top) ++ bottom
@@ -59,18 +58,19 @@ object Mondrian2 {
      val v1 = Tree(1)
      val v2 = Tree(2)
      val v3 = Tree(3,Tree(4),Tree(5))
-     v1.setLeft(v2)
-     v1.setRight(v3)
+     v1.left = v2
+     v1.right = v3
      v1.draw
-     v1.getLeft.draw
-     v1.getRight.draw
-     v1.getLeft.getParent == v1
+     v1.left.draw
+     v1.right.draw
+     v1.left.parent == v1
      
      val v4 = Tree(6,Tree(7),v3)
-     v1.setRight(v4).draw
-     v4.getLeft.draw
-     v4.getRight.draw
-     v3.getParent.draw
+     v1.right = v4
+     v1.right.draw
+     v4.left.draw
+     v4.right.draw
+     v3.parent.draw
      v1.draw
    */
  
