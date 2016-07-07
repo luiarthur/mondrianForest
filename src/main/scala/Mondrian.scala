@@ -7,8 +7,9 @@ object Mondrian {
   import breeze.stats.distributions.{Exponential,Multinomial,Uniform}
 
   case class Data(y: Vector[Double], X: Vector[Vector[Double]])
-  case class Tup(splitDim: Int = -1, splitLoc: Double = 0, splitTime: Double = 0) {
-    override def toString(): String = "X" + splitDim + " < " + (splitLoc * 100).round / 100.0
+  case class Tup(splitDim: Int = -1, splitLoc: Double = 0, splitTime: Double = 0, 
+    var l: Vector[Double]=null, var u: Vector[Double]=null) {
+    override def toString(): String = if (splitDim == -1) "0" else "X" + splitDim + " < " + (splitLoc * 100).round / 100.0
   }
 
   case class Tree[T](elem: T, left: Tree[T] = null, right: Tree[T] = null) {
@@ -64,11 +65,10 @@ object Mondrian {
     def sampleMT(): Tree[Tup] = { // Algorithm 1
       val k = dat.X(0).size
       val n = dat.y.size
-
       def sampleMB(inds: Vector[Int], tup: Tup): Tree[Tup] = { // Algorithm 2
         val subX = inds.map(i => dat.X(i))
-        val l = (0 until k).map(i => subX.map(x => x(i)).min)
-        val u = (0 until k).map(i => subX.map(x => x(i)).max)
+        val l = (0 until k).map(i => subX.map(x => x(i)).min).toVector
+        val u = (0 until k).map(i => subX.map(x => x(i)).max).toVector
         val diffs = (u,l).zipped.map(_-_)
         val diffSum = diffs.sum
         val e = Exponential( diffSum + .00000001).draw
@@ -79,15 +79,43 @@ object Mondrian {
           val Unif = new Uniform(l(delta), u(delta)) 
           val xi = Unif.sample // sample split loc
           val (lInd, rInd) = inds.partition(i => dat.X(i)(delta) < xi )
-          Tree(Tup(delta, xi, tau), sampleMB(lInd.toVector, Tup(splitTime=tau)), sampleMB(rInd.toVector, Tup(splitTime=tau)))
-        } else Tree( Tup(tup.splitDim, tup.splitLoc, lam) )
+          Tree(Tup(delta, xi, tau, l, u), sampleMB(lInd.toVector, Tup(splitTime=tau)), sampleMB(rInd.toVector, Tup(splitTime=tau)))
+        } else Tree( Tup(tup.splitDim, tup.splitLoc, lam, l, u) )
       }
       sampleMB( (0 until n).toVector, Tup() )
     }
 
-    def extendMT(newDat: Data): Tree[Tup] = { // Algorithm 4
-      ???
-    }
+    def extendMT(tree: Tree[Tup], newDat: Data): Tree[Tup] = { // Algorithm 4
+      val x = newDat.X(0)
+      val k = x.size
+
+      def extendMB(tree: Tree[Tup]): Unit = { // procedure, mutable
+        val l = tree.elem.l
+        val u = tree.elem.u
+        val el = (l zip x).map(w => List(w._1 - w._2,0).max)
+        val eu = (u zip x).map(w => List(w._1 - w._2,0).max)
+        val es = (el zip eu).map(w => w._1 + w._2)
+        val eSum = es.sum
+        if (eSum != 0 && tree.parent.elem.splitTime + eSum < tree.elem.splitTime) {
+          val Multinom = new Multinomial(new DenseVector(es.toArray))
+          val delta = Multinom.sample
+          val Unif = if (x(delta) > u(delta)) new Uniform(u(delta), x(delta)) else new Uniform(x(delta), l(delta))
+          val xi = Unif.sample
+          // currentNode?
+          ???
+        } else {
+          tree.elem.l = (l zip x).map(w => List(w._1,w._2).min) // mutable
+          tree.elem.u = (u zip x).map(w => List(w._1,w._2).max) // mutable
+          if (!tree.isLeaf) {
+            val child = if (x(tree.elem.splitDim) < tree.elem.splitLoc) tree.left else tree.right
+            extendMB(child)
+          }
+        }
+      }
+
+      extendMB(tree)
+      tree
+    } // End of Algorithm 4
   }
 
   /*
@@ -100,6 +128,8 @@ object Mondrian {
     val mt = new MT(D,.2)
     val m = mt.sampleMT
     m.draw
+
+    val newDat = Data(Vector(y(0)), Vector(X(0)))
    */
 
 }

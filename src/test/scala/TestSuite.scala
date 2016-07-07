@@ -46,7 +46,7 @@ class TestSuite extends FunSuite  {
     val y = iris.map(_(k))
     val X = iris.map(x => x.take(k))
     val D = Data(y,X)
-    val mt = new MT(D,.2)
+    val mt = new MT(D,.3)
     val m = mt.sampleMT
     print(Console.BLUE+m.treeString+Console.RESET)
   }
