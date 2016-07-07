@@ -7,9 +7,10 @@ object Mondrian {
   import breeze.stats.distributions.{Exponential,Multinomial,Uniform}
 
   case class Data(y: Vector[Double], X: Vector[Vector[Double]])
-  case class Tup(splitDim: Int = -1, splitLoc: Double = 0, splitTime: Double = 0, 
-    var l: Vector[Double]=null, var u: Vector[Double]=null) {
-    override def toString(): String = if (splitDim == -1) "0" else "X" + splitDim + " < " + (splitLoc * 100).round / 100.0
+  case class Tup( var splitDim: Int = -1, var splitLoc: Double = 0, var splitTime: Double = 0, 
+                  var l: Vector[Double]=null, var u: Vector[Double]=null,
+                  var inds: Vector[Int] = Vector()) {
+    override def toString(): String = if (splitDim == -1) "*" else "X" + splitDim + " < " + (splitLoc * 100).round / 100.0
   }
  
   case class Tree[T](private var _elem: T, private var _left: Tree[T] = null, private var _right: Tree[T] = null) {
@@ -76,53 +77,67 @@ object Mondrian {
      v3.draw
    */
   
-  class MT(val dat: Data, val lam: Double) {
-    def sampleMT(): Tree[Tup] = { // Algorithm 1
-      val k = dat.X(0).size
-      val n = dat.y.size
-      def sampleMB(inds: Vector[Int], tup: Tup): Tree[Tup] = { // Algorithm 2
-        val subX = inds.map(i => dat.X(i))
-        val l = (0 until k).map(i => subX.map(x => x(i)).min).toVector
-        val u = (0 until k).map(i => subX.map(x => x(i)).max).toVector
-        val diffs = (u,l).zipped.map(_-_)
-        val diffSum = diffs.sum
-        val e = Exponential( diffSum + .00000001).draw
-        if (diffSum != 0 && tup.splitTime + e < lam ) { // IF diffSum == 0 THEN split time -> infinity
-          val tau = tup.splitTime + e
-          val Multinom = new Multinomial(new DenseVector(diffs.toArray))
-          val delta = Multinom.sample// sample split dim
-          val Unif = new Uniform(l(delta), u(delta)) 
-          val xi = Unif.sample // sample split loc
-          val (lInd, rInd) = inds.partition(i => dat.X(i)(delta) < xi )
-          Tree(Tup(delta, xi, tau, l, u), sampleMB(lInd.toVector, Tup(splitTime=tau)), sampleMB(rInd.toVector, Tup(splitTime=tau)))
-        } else Tree( Tup(tup.splitDim, tup.splitLoc, lam, l, u) )
-      }
-      sampleMB( (0 until n).toVector, Tup() )
+  class MT(val data: Data, val lam: Double) {
+    val tree = Tree(Tup())
+    //override def toString(): String = tree.draw
+
+    def sampleMT(dat: Data = data): Tree[Tup] = { // Algorithm 1
+      tree.elem.inds = (0 until dat.y.size).toVector
+      sampleMB(tree)
+      tree
     }
 
-    def extendMT(tree: Tree[Tup], newDat: Data): Tree[Tup] = { // Algorithm 4
+    def sampleMB(j: Tree[Tup], dat: Data = data): Unit = { // Algorithm 2. Mutable procedure
+      val k = dat.X(0).size
+      val subX = j.elem.inds.map(i => dat.X(i))
+      val l = (0 until k).map(i => subX.map(x => x(i)).min).toVector
+      val u = (0 until k).map(i => subX.map(x => x(i)).max).toVector
+      (j.elem.l = l, j.elem.u =u)
+      val diffs = (u,l).zipped.map(_-_)
+      val diffSum = diffs.sum
+      val e = Exponential( diffSum + .00000001).draw
+      if (diffSum != 0 && j.elem.splitTime + e < lam ) { // IF diffSum == 0 THEN split time -> infinity
+        j.elem.splitTime = if (j.isRoot) e else j.parent.elem.splitTime + e
+        j.elem.splitDim = Multinomial(new DenseVector(diffs.toArray)).sample
+        j.elem.splitLoc = Uniform(l(j.elem.splitDim), u(j.elem.splitDim)).sample
+        val (lInd, rInd) = j.elem.inds.partition(i => dat.X(i)(j.elem.splitDim) < j.elem.splitLoc )
+        val lTree = Tree(Tup(inds = lInd.toVector))
+        val rTree = Tree(Tup(inds = rInd.toVector))
+        j.left = lTree
+        j.right = rTree
+        sampleMB(j.left)
+        sampleMB(j.right)
+      } else j.elem.splitTime = lam
+    }
+
+    def extendMT(newDat: Data): Tree[Tup] = { // Algorithm 4
       val x = newDat.X(0)
       val k = x.size
 
-      def extendMB(tree: Tree[Tup]): Unit = { // procedure, mutable
-        val l = tree.elem.l
-        val u = tree.elem.u
-        val el = (l zip x).map(w => List(w._1 - w._2,0).max)
-        val eu = (u zip x).map(w => List(w._1 - w._2,0).max)
+      def extendMB(j: Tree[Tup]): Unit = { // procedure, mutable
+        val el = (j.elem.l zip x).map(w => List(w._1 - w._2,0).max)
+        val eu = (j.elem.u zip x).map(w => List(w._1 - w._2,0).max)
         val es = (el zip eu).map(w => w._1 + w._2)
         val eSum = es.sum
-        if (eSum != 0 && tree.parent.elem.splitTime + eSum < tree.elem.splitTime) {
-          val Multinom = new Multinomial(new DenseVector(es.toArray))
-          val delta = Multinom.sample
-          val Unif = if (x(delta) > u(delta)) new Uniform(u(delta), x(delta)) else new Uniform(x(delta), l(delta))
-          val xi = Unif.sample
-          // currentNode?
-          ???
+        val e = Exponential( eSum + .00000001).draw
+        val parentSplitTime = if (j.isRoot) 0 else j.parent.elem.splitTime
+        if (eSum != 0 && parentSplitTime + e < j.elem.splitTime) {
+          val delta = Multinomial(new DenseVector(es.toArray)).sample
+          val xi = {if (x(delta) > j.elem.u(delta)) Uniform(j.elem.u(delta), x(delta)) else Uniform(x(delta), j.elem.l(delta))}.sample
+          val jnew = Tree(Tup(splitDim=delta, splitLoc=xi, splitTime=j.parent.elem.splitTime + e, 
+                              l=(j.elem.l zip x).map(w => List(w._1,w._2).min), 
+                              u=(j.elem.u zip x).map(w => List(w._1,w._2).max)))
+          j.parent.right = jnew
+          jnew.right = j
+          // Stopped HERE
+          //val lInd = jnew.elem.inds.partition(i => dat.X(i)(j.elem.splitDim) < j.elem.splitLoc )
+          jnew.left = Tree(Tup())
+          sampleMB(jnew.left,newDat)
         } else {
-          tree.elem.l = (l zip x).map(w => List(w._1,w._2).min) // mutable
-          tree.elem.u = (u zip x).map(w => List(w._1,w._2).max) // mutable
-          if (!tree.isLeaf) {
-            val child = if (x(tree.elem.splitDim) < tree.elem.splitLoc) tree.left else tree.right
+          j.elem.l = (j.elem.l zip x).map(w => List(w._1,w._2).min) // mutable
+          j.elem.u = (j.elem.u zip x).map(w => List(w._1,w._2).max) // mutable
+          if (!j.isLeaf) {
+            val child = if (x(j.elem.splitDim) < j.elem.splitLoc) j.left else j.right
             extendMB(child)
           }
         }
@@ -141,10 +156,11 @@ object Mondrian {
     val X = iris.map(x => x.take(k))
     val D = Data(y,X)
     val mt = new MT(D,.2)
-    val m = mt.sampleMT
+    val m = mt.sampleMT()
     m.draw
-
-    val newDat = Data(Vector(y(0)), Vector(X(0)))
+    val newDat = Data(Vector(1), Vector(Vector(1,2,3,4)))
+    val mx = mt.extendMT(newDat)
+    mx.draw
    */
 
 }
