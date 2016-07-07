@@ -51,20 +51,38 @@ class TestSuite extends FunSuite  {
       && !mti1.isRoot && !mti3.left.isRoot)
   }
 
-  test("Mondrian Tree Sample") {
-    //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
-    //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
-    val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
-    val n = iris.size
-    val k = iris(0).size - 1
-    val y = iris.map(_(k))
-    val X = iris.map(x => x.take(k))
-    val D = Data(y,X)
-    val mt = new MT(D,.1)
+  //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
+  //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
+  val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
+  val n = iris.size
+  val k = iris(0).size - 1
+  val y = iris.map(_(k))
+  val X = iris.map(x => x.take(k))
+  val D = Data(y,X)
+  val mt = new MT(D,10)
+
+  test("Mondrian Tree SampleMT()") {
     val m = mt.sampleMT()
-    print(Console.BLUE+m.treeString+Console.RESET)
-    val newDat = Data(Vector(1), Vector(Vector(1,2,3,4)) )
-    val mx = mt.extendMT(newDat)
-    print(Console.BLUE+mx.treeString+Console.RESET)
+    //print(Console.BLUE+m.head.treeString+Console.RESET)
+    //print(Console.GREEN+mt.sampleMT().head.treeString+Console.RESET)
+    //assert(mt.sampleMT() != mt.sampleMT())
+  }
+
+  test("Mondrian Forest") {
+    val mm = mt.sampleMT(n=100)
+    //mm.foreach( _.draw )
+  }
+
+  test("Mondrian Tree ExtendMT()") {
+    val mt = new MT(D,.3)
+    val m = mt.sampleMT(n=100)
+    val newDat = Data(Vector(1), Vector(Vector(10,2,3,4)) )
+    print(Console.BLUE+m.head.treeString+Console.RESET)
+    val mx = mt.extendMT(m.head,newDat)
+    print(Console.GREEN+mx.head.treeString+Console.RESET)
+    val newDat2 = Data(Vector(0), Vector(Vector(1,20,3,4)) )
+    val mx2 = mt.extendMT(mx.head,newDat2,2)
+    mx2.foreach(x => print(Console.YELLOW+x.treeString+Console.RESET) )
   }
 }
+
