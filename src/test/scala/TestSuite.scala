@@ -2,7 +2,7 @@ import org.scalatest.FunSuite
 
 class TestSuite extends FunSuite  {
 
-  import Mondrian2._
+  import Mondrian._
 
   val bLeft  = Tree(1)
   val bRight = Tree(2)
@@ -51,17 +51,17 @@ class TestSuite extends FunSuite  {
       && !mti1.isRoot && !mti3.left.isRoot)
   }
 
-  //test("Mondrian Tree Sample") {
-  //  //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
-  //  //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
-  //  val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
-  //  val n = iris.size
-  //  val k = iris(0).size - 1
-  //  val y = iris.map(_(k))
-  //  val X = iris.map(x => x.take(k))
-  //  val D = Data(y,X)
-  //  val mt = new MT(D,.3)
-  //  val m = mt.sampleMT
-  //  print(Console.BLUE+m.treeString+Console.RESET)
-  //}
+  test("Mondrian Tree Sample") {
+    //val irisDat = breeze.linalg.csvread(new java.io.File("src/test/resources/iris.csv"),',')
+    //val irisVec = irisDat.toArray.toVector.grouped(150).toVector
+    val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
+    val n = iris.size
+    val k = iris(0).size - 1
+    val y = iris.map(_(k))
+    val X = iris.map(x => x.take(k))
+    val D = Data(y,X)
+    val mt = new MT(D,.3)
+    val m = mt.sampleMT
+    print(Console.BLUE+m.treeString+Console.RESET)
+  }
 }

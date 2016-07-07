@@ -11,18 +11,32 @@ object Mondrian {
     var l: Vector[Double]=null, var u: Vector[Double]=null) {
     override def toString(): String = if (splitDim == -1) "0" else "X" + splitDim + " < " + (splitLoc * 100).round / 100.0
   }
+ 
+  case class Tree[T](private var _elem: T, private var _left: Tree[T] = null, private var _right: Tree[T] = null) {
+    def elem_=(that: T): Unit = _elem = that
+    def parent_=(that: Tree[T]): Unit = {
+      this._parent = that
+      that._left = this
+      that._right = this
+    }
+    def left_=(that: Tree[T]): Unit = {
+      this._left = that
+      that._parent = this
+    }
+    def right_=(that: Tree[T]): Unit = {
+      this._right = that
+      that._parent = this
+    }
+    def elem = _elem
+    def parent = _parent
+    def left = _left
+    def right = _right
 
-  case class Tree[T](elem: T, left: Tree[T] = null, right: Tree[T] = null) {
-    var mutableParent: Tree[T] = null // Use only 'parent' in interface!!!
-    Seq(right,left).foreach(child => if (child match {case null => false; case _ => true}) child.mutableParent = this)
-    def parent = mutableParent
-    def isLeaf: Boolean = (left,right) match {case (null,null) => true; case _ => false}
-    def isRoot: Boolean = parent match {case null => true; case _ => false}
+    private var _parent: Tree[T] = null
+    Seq(_right,_left).foreach(child => if (child match {case null => false; case _ => true}) child._parent = this)
 
-    //elem match {
-    //  case t: Tup => println("I am a Tup!" + t.splitDim)
-    //  case _ => println("! am not a Tup!")
-    //}
+    def isLeaf: Boolean = (_left,_right) match {case (null,null) => true; case _ => false}
+    def isRoot: Boolean = _parent match {case null => true; case _ => false}
 
     private def pretty(spacing: Int = 3): Vector[String] = {
       def rep(n: Int, s: String=" "): String = List.fill(n)(s).mkString
@@ -39,10 +53,10 @@ object Mondrian {
       }
 
       val ps = elem.toString
-      val ls = if (left.isLeaf) Vector(left.elem.toString) else left.pretty(spacing)
-      val rs = if (right.isLeaf) Vector(right.elem.toString) else right.pretty(spacing)
-      val posL = ls(0).indexOf(left.elem.toString)
-      val posR = rs(0).indexOf(right.elem.toString)
+      val ls = if (_left.isLeaf) Vector(_left.elem.toString) else _left.pretty(spacing)
+      val rs = if (_right.isLeaf) Vector(_right.elem.toString) else _right.pretty(spacing)
+      val posL = ls(0).indexOf(_left.elem.toString)
+      val posR = rs(0).indexOf(_right.elem.toString)
       val top = rep(posL) + rep(spacing+ls(0).size-posL,"_") + ps + rep(spacing+posR,"_") + rep(rs(0).size-posR)
       val bottom = List(ls, Vector(rep(spacing*2 + ps.size)), rs).reduce(paste)
       Vector(top) ++ bottom
@@ -51,6 +65,7 @@ object Mondrian {
     def treeString(): String = if (isLeaf) toString else "\n" + pretty(spacing=3).mkString("\n") + "\n"
     def draw(): Unit = print(treeString)
   }
+
 
   /*
     Tree(1).draw
