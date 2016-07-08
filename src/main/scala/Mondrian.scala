@@ -1,7 +1,7 @@
 /**
   * Created by arthur on 7/4/16.
   */
-object Mondrian {
+object Mondrian { // for Classification: IKN. (Implementation on real responses with Gaussian belief propagation will come later.)
 
   import breeze.linalg.{DenseMatrix,DenseVector}
   import breeze.stats.distributions.{Exponential,Multinomial,Uniform}
@@ -33,6 +33,9 @@ object Mondrian {
 
     def isLeaf: Boolean = (_left,_right) match {case (null,null) => true; case _ => false}
     def isRoot: Boolean = _parent match {case null => true; case _ => false}
+    def nodes(): List[Tree[T]] = {
+      ???
+    }
 
     private def pretty(spacing: Int = 3): Vector[String] = {
       def rep(n: Int, s: String=" "): String = List.fill(n)(s).mkString
@@ -139,6 +142,11 @@ object Mondrian {
         t
       })
     } // End of Algorithm 4
+
+    def initPosteriorCounts(tree: Tree[Tup], classes: Vector[Double] = data.y.toSet.toVector) { // Algorithm 5: IKN approximation
+      //var c = classes.map( k => tree.map() ) 
+      ???
+    }
   }
 
   /*
