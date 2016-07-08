@@ -33,9 +33,7 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
 
     def isLeaf: Boolean = (_left,_right) match {case (null,null) => true; case _ => false}
     def isRoot: Boolean = _parent match {case null => true; case _ => false}
-    def nodes(): List[Tree[T]] = {
-      ???
-    }
+    def nodes(): List[Tree[T]] = if (isLeaf) List(this) else left.nodes ::: right.nodes ::: List(this)
 
     private def pretty(spacing: Int = 3): Vector[String] = {
       def rep(n: Int, s: String=" "): String = List.fill(n)(s).mkString
@@ -61,8 +59,8 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
       Vector(top) ++ bottom
     }
 
-    def treeString(): String = if (isLeaf) toString else "\n" + pretty(spacing=1).mkString("\n") + "\n"
-    def draw(): Unit = print(treeString)
+    def treeString(): String = if (isLeaf) "Leaf(" + elem.toString + ")" else "\n" + pretty(spacing=1).mkString("\n") + "\n"
+    def draw(): Unit = println(treeString)
   }
 
   class MT(val data: Data, val lam: Double) {
@@ -143,13 +141,30 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
       })
     } // End of Algorithm 4
 
-    def initPosteriorCounts(tree: Tree[Tup], classes: Vector[Double] = data.y.toSet.toVector) { // Algorithm 5: IKN approximation
-      //var c = classes.map( k => tree.map() ) 
-      ???
+    def initPosteriorCounts(tree: Tree[Tup], classes: Vector[Double] = data.y.toSet.toVector): 
+      (collection.mutable.Map[(Tree[Tup],Double),Int],collection.mutable.Map[(Tree[Tup],Double),Int]) = { // Algorithm 5: IKN approximation
+      //val tree = Tree(1,Tree(2,Tree(5,null,null),Tree(6,null,null)),Tree(3,Tree(1,null,null),Tree(2,null,null)))
+      var c = collection.mutable.Map[(Tree[Tup],Double),Int]()
+      var tab = collection.mutable.Map[(Tree[Tup],Double),Int]()
+      classes.foreach( k => tree.nodes.foreach(j => {
+        c((j,k)) = j.elem.inds.map(i => data.y(i)).count(yn => yn == k)
+        tab((j,k)) = if (c((j,k)) == 0) 0 else 1
+      }))
+
+      def loop(jj: Tree[Tup]) {
+        if (!jj.isLeaf) classes.foreach(k => c((jj,k)) = tab((jj.left,k))+ tab((jj.right,k)))
+        classes.foreach(k => tab((jj,k)) =  if (c((jj,k)) == 0) 0 else 1)
+        if (!jj.isRoot) loop(jj.parent)
+      }
+
+      loop(tree)
+      (c,tab)
     }
+
   }
 
   /*
+    import Mondrian._
     val iris = scala.io.Source.fromFile("src/test/resources/iris.csv").getLines.map(x=>x.split(",").toVector.map(_.toDouble)).toVector
     val n = iris.size
     val k = iris(0).size - 1
@@ -158,10 +173,11 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
     val D = Data(y,X)
     val mt = new MT(D,.2)
     val m = mt.sampleMT()
-    m.draw
+    m.head.draw
     val newDat = Data(Vector(1), Vector(Vector(1,2,3,4)))
-    val mx = mt.extendMT(newDat)
-    mx.draw
+    val mx = mt.extendMT(m.head,newDat)
+    mx.head.draw
+    mx.head.nodes.foreach( _.draw )
    */
 
 }

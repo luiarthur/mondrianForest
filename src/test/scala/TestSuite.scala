@@ -74,7 +74,7 @@ class TestSuite extends FunSuite  {
   }
 
   test("Mondrian Tree ExtendMT()") {
-    val mt = new MT(D,.3)
+    val mt = new MT(D,.1)
     val m = mt.sampleMT(n=100)
     val newDat = Data(Vector(1), Vector(Vector(10,2,3,4)) )
     print(Console.BLUE+m.head.treeString+Console.RESET)
