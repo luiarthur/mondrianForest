@@ -13,6 +13,7 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
     override def toString(): String = if (splitDim == -1) "*" else "X" + (splitDim+1) + " < " + (splitLoc * 100).round / 100.0
   }
  
+  // CRAZY TESTING
   case class Tree[T](private var _elem: T, private var _left: Tree[T] = null, private var _right: Tree[T] = null) {
     def elem_=(that: T): Unit = _elem = that
     def left_=(that: Tree[T]): Unit = {
