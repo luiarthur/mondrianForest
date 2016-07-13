@@ -83,6 +83,9 @@ class TestSuite extends FunSuite  {
     val newDat2 = Data(Vector(0), Vector(Vector(1,20,3,4)) )
     val mx2 = mt.extendMT(mx.head,newDat2,2)
     mx2.foreach(x => print(Console.YELLOW+x.treeString+Console.RESET) )
+    //val newDat3 = Data(Vector(1,0), Vector(Vector(10,2,3,4),Vector(1,20,3,4)) )
+    //val mx3 = mt.extendMT(mx.head,newDat3,2)
+    //mx3.foreach(x => print(Console.YELLOW+x.treeString+Console.RESET) )
   }
 }
 
