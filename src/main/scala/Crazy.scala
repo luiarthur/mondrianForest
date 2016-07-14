@@ -1,20 +1,11 @@
 object Crazy {
-  sealed abstract class Tree[+T]
-
-  case class Node[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T] {
-    override def toString = "T(" + value.toString + " " + left.toString + " " + right.toString + ")"
+  type VD = Vector[Double]
+  type VDD = Vector[Vector[Double]]
+  case class Data(y: Vector[Double], X: Vector[Vector[Double]])
+  case class Tup( var splitDim: Int = -1, var splitLoc: Double = 0, var splitTime: Double = 0, 
+                  var l: Vector[Double]=null, var u: Vector[Double]=null,
+                  var inds: Vector[Int] = Vector()) {
+    override def toString(): String = if (splitDim == -1) "*" else "X" + (splitDim+1) + " < " + (splitLoc * 100).round / 100.0
   }
 
-  case object End extends Tree[Nothing] {
-    override def toString = "."
-  }
-
-  object Node {
-    def apply[T](value: T): Node[T] = Node(value, End, End)
-  }
 }
-
-/*
-   import Crazy._
-   Node(1,Node(2),Node(3))
- */
