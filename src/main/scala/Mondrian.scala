@@ -15,12 +15,12 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
  
   // CRAZY TESTING
   case class Tree[T](private var _elem: T, private var _left: Tree[T] = null, private var _right: Tree[T] = null) {
-    def elem_=(that: T): Unit = _elem = that
-    def left_=(that: Tree[T]): Unit = {
+    def elem_=(that: T) = _elem = that
+    def left_=(that: Tree[T]) = {
       this._left = that
       that._parent = this
     }
-    def right_=(that: Tree[T]): Unit = {
+    def right_=(that: Tree[T]) = {
       this._right = that
       that._parent = this
     }
@@ -32,15 +32,15 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
     private var _parent: Tree[T] = null
     Seq(_right,_left).foreach(child => if (child match {case null => false; case _ => true}) child._parent = this)
 
-    def isLeaf: Boolean = (_left,_right) match {case (null,null) => true; case _ => false}
-    def isRoot: Boolean = _parent match {case null => true; case _ => false}
+    def isLeaf = (_left,_right) match {case (null,null) => true; case _ => false}
+    def isRoot = _parent match {case null => true; case _ => false}
     def nodes(): List[Tree[T]] = if (isLeaf) List(this) else left.nodes ::: right.nodes ::: List(this)
 
     private def pretty(spacing: Int = 3): Vector[String] = {
       def rep(n: Int, s: String=" "): String = List.fill(n)(s).mkString
 
       def paste(l: Vector[String], r: Vector[String]): Vector[String] = {
-        def elongate(vs: Vector[String]): Vector[String] = {
+        def elongate(vs: Vector[String]) = {
           val maxCol = vs.map(_.size).max
           vs.map( s => s + rep(maxCol - s.size) )
         }
@@ -60,12 +60,12 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
       Vector(top) ++ bottom
     }
 
-    def treeString(): String = if (isLeaf) "Leaf(" + elem.toString + ")" else "\n" + pretty(spacing=1).mkString("\n") + "\n"
-    def draw(): Unit = println(treeString)
+    def treeString() = if (isLeaf) "Leaf(" + elem.toString + ")" else "\n" + pretty(spacing=1).mkString("\n") + "\n"
+    def draw() = println(treeString)
   }
 
   class MT(val data: Data, val lam: Double) {
-    def sampleMT(dat: Data = data, n: Int=1): List[Tree[Tup]] = { // Algorithm 1
+    def sampleMT(dat: Data = data, n: Int=1) = { // Algorithm 1
       (1 to n).toList.map( i => {
         val t = Tree(Tup(inds=(0 until dat.y.size).toVector))
         sampleMB(t)
@@ -95,7 +95,7 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
       } else j.elem.splitTime = lam
     }
 
-    def extendMT(tree: Tree[Tup], newDat: Data, n: Int = 1): List[Tree[Tup]] = { // Algorithm 4
+    def extendMT(tree: Tree[Tup], newDat: Data, n: Int = 1) = { // Algorithm 4
       val x = newDat.X(0)
       val k = x.size
 
@@ -142,8 +142,8 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
       })
     } // End of Algorithm 4
 
-    def initPosteriorCounts(tree: Tree[Tup], classes: Vector[Double] = data.y.toSet.toVector): 
-      (collection.mutable.Map[(Tree[Tup],Double),Int],collection.mutable.Map[(Tree[Tup],Double),Int]) = { // Algorithm 5: IKN approximation
+    type MM = collection.mutable.Map[(Tree[Tup],Double),Int]
+    def initPosteriorCounts(tree: Tree[Tup], classes: Vector[Double] = data.y.toSet.toVector) = { //Algorithm 5: IKN approximation
       //val tree = Tree(1,Tree(2,Tree(5,null,null),Tree(6,null,null)),Tree(3,Tree(1,null,null),Tree(2,null,null)))
       var c = collection.mutable.Map[(Tree[Tup],Double),Int]()
       var tab = collection.mutable.Map[(Tree[Tup],Double),Int]()
