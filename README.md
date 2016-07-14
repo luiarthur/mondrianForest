@@ -7,5 +7,6 @@ Mutable Trees
 1. Make Immutable
 2. Use case classes
 
-[//]: # (This may be the most platform independent comment)
+
+[//]: # (References)
 [1]: http://stackoverflow.com/questions/26118270/when-to-use-case-class-or-regular-class
