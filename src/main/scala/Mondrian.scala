@@ -141,26 +141,6 @@ object Mondrian { // for Classification: IKN. (Implementation on real responses 
       })
     } // End of Algorithm 4
 
-    type MapLabel = collection.mutable.Map[(Tree[Tup],Double),Int]
-    def initPosteriorCounts(tree: Tree[Tup], classes: Vector[Double] = data.y.toSet.toVector): (MapLabel,MapLabel) = { // Algorithm 5: IKN approximation
-      //val tree = Tree(1,Tree(2,Tree(5,null,null),Tree(6,null,null)),Tree(3,Tree(1,null,null),Tree(2,null,null)))
-      var c = collection.mutable.Map[(Tree[Tup],Double),Int]()
-      var tab = collection.mutable.Map[(Tree[Tup],Double),Int]()
-      classes.foreach( k => tree.nodes.foreach(j => {
-        c((j,k)) = j.elem.inds.map(i => data.y(i)).count(yn => yn == k)
-        tab((j,k)) = if (c((j,k)) == 0) 0 else 1
-      }))
-
-      def loop(jj: Tree[Tup]) {
-        if (!jj.isLeaf) classes.foreach(k => c((jj,k)) = tab((jj.left,k))+ tab((jj.right,k)))
-        classes.foreach(k => tab((jj,k)) =  if (c((jj,k)) == 0) 0 else 1)
-        if (!jj.isRoot) loop(jj.parent)
-      }
-
-      loop(tree)
-      (c,tab)
-    }
-
   }
 
   /*
