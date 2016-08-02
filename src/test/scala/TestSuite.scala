@@ -58,34 +58,36 @@ class TestSuite extends FunSuite  {
   val k = iris(0).size - 1
   val y = iris.map(_(k))
   val X = iris.map(x => x.take(k))
-  val D = Data(y,X)
-  val mt = new MT(D,10)
+  val xrng = dataRange(X)
 
   test("Mondrian Tree SampleMT()") {
-    val m = mt.sampleMT()
-    //print(Console.BLUE+m.head.treeString+Console.RESET)
+    val mt = MT(lam=4, xrng=xrng, numClasses=y.toSet.size)
+    for (i <- 0 until n) mt.update(X(i),y(i).toInt)
+    print(Console.BLUE+mt.tree.treeString+Console.RESET)
     //print(Console.GREEN+mt.sampleMT().head.treeString+Console.RESET)
     //assert(mt.sampleMT() != mt.sampleMT())
   }
 
+  /*
   test("Mondrian Forest") {
-    val mm = mt.sampleMT(n=100)
+    //val mm = mt.sampleMT(n=100)
     //mm.foreach( _.draw )
   }
 
   test("Mondrian Tree ExtendMT()") {
-    val mt = new MT(D,.1)
-    val m = mt.sampleMT(n=100)
-    val newDat = Data(Vector(1), Vector(Vector(10,2,3,4)) )
-    print(Console.BLUE+m.head.treeString+Console.RESET)
-    val mx = mt.extendMT(m.head,newDat)
-    print(Console.GREEN+mx.head.treeString+Console.RESET)
-    val newDat2 = Data(Vector(0), Vector(Vector(1,20,3,4)) )
-    val mx2 = mt.extendMT(mx.head,newDat2,2)
-    mx2.foreach(x => print(Console.YELLOW+x.treeString+Console.RESET) )
+    //val mt = new MT(D,.1)
+    //val m = mt.sampleMT(n=100)
+    //val newDat = Data(Vector(1), Vector(Vector(10,2,3,4)) )
+    //print(Console.BLUE+m.head.treeString+Console.RESET)
+    //val mx = mt.extendMT(m.head,newDat)
+    //print(Console.GREEN+mx.head.treeString+Console.RESET)
+    //val newDat2 = Data(Vector(0), Vector(Vector(1,20,3,4)) )
+    //val mx2 = mt.extendMT(mx.head,newDat2,2)
+    //mx2.foreach(x => print(Console.YELLOW+x.treeString+Console.RESET) )
     //val newDat3 = Data(Vector(1,0), Vector(Vector(10,2,3,4),Vector(1,20,3,4)) )
     //val mx3 = mt.extendMT(mx.head,newDat3,2)
     //mx3.foreach(x => print(Console.YELLOW+x.treeString+Console.RESET) )
   }
+  */
 }
 
